@@ -191,7 +191,7 @@ const FilterContent = ({
 
 function Collections() {
   const [showFilter, setShowFilter] = useState(false);
-  const { product, search, showSearch, compareList, toggleCompare } = useContext(shopDataContext);
+  const { product, pagination, getProducts, search, showSearch, compareList, toggleCompare } = useContext(shopDataContext);
   const [filterProduct, setFilterProduct] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
@@ -477,9 +477,12 @@ function Collections() {
                 </div>
 
                 {/* Load More Button */}
-                {filterProduct.length > 0 && filterProduct.length % 12 === 0 && (
+                {pagination.page < pagination.pages && (
                   <div className='text-center mt-12'>
-                    <button className='px-8 py-3 bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 text-slate-800 dark:text-white rounded-lg transition-colors font-semibold'>
+                    <button
+                      onClick={() => getProducts(pagination.page + 1)}
+                      className='px-8 py-3 bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 text-slate-800 dark:text-white rounded-lg transition-colors font-semibold'
+                    >
                       Load More Products
                     </button>
                   </div>
