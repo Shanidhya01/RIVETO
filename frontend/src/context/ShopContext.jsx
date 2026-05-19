@@ -125,18 +125,10 @@ function ShopContext({ children }) {
   };
 
 
-  const getCartAmount = async () => {
+  const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItem) {
       let itemInfo = (product || []).find((p) => p._id === items);
-      if (!itemInfo) {
-        try {
-          const res = await axios.get(`${serverUrl}/api/product/${items}`);
-          itemInfo = res.data.product || res.data;
-        } catch (error) {
-          console.log("Could not fetch product for cart item:", items);
-        }
-      }
       for (const item in cartItem[items]) {
         try {
           if (itemInfo && cartItem[items][item] > 0) {
