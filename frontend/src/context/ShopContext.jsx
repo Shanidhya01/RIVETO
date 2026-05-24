@@ -4,16 +4,25 @@ import { authDataContext } from './AuthContext';
 import axios from 'axios';
 import { userDataContext } from './UserContext';
 
-
 export const shopDataContext = createContext();
 
 function ShopContext({ children }) {
   const [product, setProduct] = useState([]);
-  const [search, setSearch] = useState("");
+  const [pagination, setPagination] = useState({ page: 1, total: 0, pages: 1 });
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [cartItem, setCartItem] = useState({});
   const [compareList, setCompareList] = useState([]);
+  const [wishlistItem, setWishlistItem] = useState([]);
   const [comparePanelOpen, setComparePanelOpen] = useState(false);
+  const addToWishlist = (itemId) => {
+    setWishlistItem((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
   const { serverUrl } = useContext(authDataContext);
   const { userData } = useContext(userDataContext); //
   const [wishlist, setWishlist] = useState([]);
@@ -82,20 +91,27 @@ const removeFromWishlist = async (productId) => {
 };
 
   // Fetch products from server
-  const getProducts = async () => {
+  const getProducts = async (page = 1, limit = 20) => {
+    if (loadingProducts) return;
+    setLoadingProducts(true);
     try {
-      const result = await axios.get(serverUrl + "/api/product/list");
-      console.log("Fetched products:", result.data);
-      setProduct(result.data);
+      const result = await axios.get(
+        `${serverUrl}/api/product/list?page=${page}&limit=${limit}`
+      );
+      const incoming = result.data.products || [];
+      setProduct((prev) => (page === 1 ? incoming : [...prev, ...incoming]));
+      setPagination(result.data.pagination || { page: 1, total: 0, pages: 1 });
     } catch (error) {
-      console.log("Error fetching products:", error);
+      console.log('Error fetching products:', error);
+    } finally {
+      setLoadingProducts(false);
     }
   };
 
   // Add product to cart
   const addtoCart = async (itemId, size) => {
     if (!size) {
-      console.log("Select Product Size");
+      console.log('Select Product Size');
       return;
     }
 
@@ -115,48 +131,52 @@ const removeFromWishlist = async (productId) => {
     setCartItem(cartData);
     console.log(cartData);
 
-
     if (userData) {
       try {
-        let result = await axios.post(serverUrl + '/api/cart/add', { itemId, size }, { withCredentials: true })
+        let result = await axios.post(
+          serverUrl + '/api/cart/add',
+          { itemId, size },
+          { withCredentials: true }
+        );
         console.log(result.data);
-
       } catch (error) {
         console.log(error);
-
       }
     }
   };
-
 
   const getUserCart = async () => {
     if (!userData) return; // Don't call API if not logged in
 
     try {
-      const result = await axios.post(serverUrl + "/api/cart/get", {}, { withCredentials: true });
+      const result = await axios.post(
+        serverUrl + '/api/cart/get',
+        {},
+        { withCredentials: true }
+      );
       setCartItem(result.data);
     } catch (error) {
-      console.log("❌ Error fetching cart:", error);
+      console.log('❌ Error fetching cart:', error);
     }
   };
 
   const UpdateQuantity = async (itemId, size, quantity) => {
     let cartData = structuredClone(cartItem);
-    cartData[itemId][size] = quantity
-    setCartItem(cartData)
-
+    cartData[itemId][size] = quantity;
+    setCartItem(cartData);
 
     if (userData) {
       try {
-        await axios.post(serverUrl + "/api/cart/update", { itemId, size, quantity }, { withCredentials: true })
+        await axios.post(
+          serverUrl + '/api/cart/update',
+          { itemId, size, quantity },
+          { withCredentials: true }
+        );
       } catch (error) {
         console.log(error);
-
-
-
       }
     }
-  }
+  };
 
   // Count total items in cart
   const getCartCount = () => {
@@ -169,60 +189,57 @@ const removeFromWishlist = async (productId) => {
             totalCount += count;
           }
         } catch (error) {
-          console.error("Error counting cart item", error);
+          console.error('Error counting cart item', error);
         }
       }
     }
     return totalCount; // ✅ Now returns the total count
   };
 
-
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItem) {
-      let itemInfo = product.find((product) => product._id === items);
+      let itemInfo = (product || []).find((p) => p._id === items);
       for (const item in cartItem[items]) {
         try {
-          if (cartItem[items][item] > 0) {
+          if (itemInfo && cartItem[items][item] > 0) {
             totalAmount += itemInfo.price * cartItem[items][item];
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       }
     }
-    return totalAmount
-  }
+    return totalAmount;
+  };
 
   const toggleCompare = (product) => {
-    setCompareList(prev => {
-      const exists = prev.find(item => item._id === product._id);
+    setCompareList((prev) => {
+      const exists = prev.find((item) => item._id === product._id);
       if (exists) {
-        toast.info("Removed from comparison", {
-          position: "bottom-center",
+        toast.info('Removed from comparison', {
+          position: 'bottom-center',
           autoClose: 1000,
-          hideProgressBar: true
+          hideProgressBar: true,
         });
-        return prev.filter(item => item._id !== product._id);
+        return prev.filter((item) => item._id !== product._id);
       }
       if (prev.length >= 4) {
-        toast.warning("You can compare up to 4 products", {
-          position: "bottom-center",
-          autoClose: 2000
+        toast.warning('You can compare up to 4 products', {
+          position: 'bottom-center',
+          autoClose: 2000,
         });
         return prev;
       }
-      toast.success("Added to comparison", {
-        position: "bottom-center",
+      toast.success('Added to comparison', {
+        position: 'bottom-center',
         autoClose: 1000,
-        hideProgressBar: true
+        hideProgressBar: true,
       });
       return [...prev, product];
     });
   };
 
   const removeFromCompare = (id) => {
-    setCompareList(prev => prev.filter(item => item._id !== id));
+    setCompareList((prev) => prev.filter((item) => item._id !== id));
   };
 
   const toggleComparePanel = (state) => {
@@ -244,6 +261,8 @@ const removeFromWishlist = async (productId) => {
 }, [userData]);
   const value = {
     product,
+    pagination,
+    loadingProducts,
     currency,
     delivery_fee,
     getProducts,
