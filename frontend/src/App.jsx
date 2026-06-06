@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify';
 import { RiPriceTag3Line } from 'react-icons/ri';
 import './App.css';
 import 'react-toastify/dist/ReactToastify.css';
-import './App.css';
 
 import { userDataContext } from './context/UserContext';
 import { shopDataContext } from './context/ShopContext';
@@ -12,11 +11,11 @@ import { shopDataContext } from './context/ShopContext';
 // Components
 import Nav from './components/Nav';
 import BackToTop from './components/BackToTop';
-import Nav from './components/Nav';
 import Login from './pages/Login';
 import Registration from './pages/Registration';
 import Home from './pages/Home';
 import About from './pages/About';
+import Wishlist from './pages/wishlist';
 import Collections from './pages/Collections';
 import NewArrivals from './pages/NewArrivals';
 import BestSellers from './pages/BestSellers';

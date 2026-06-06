@@ -8,10 +8,6 @@ import { FaStar, FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import { LoadingState, EmptyState, ErrorState } from '../components/StateComponents';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { RiArrowUpDownLine, RiPriceTag3Line } from 'react-icons/ri';
-import { FaFilter, FaSearch, FaStar, FaTimes } from 'react-icons/fa';
-import Card from '../components/Card';
-import Footer from '../components/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,42 +33,6 @@ const slideAnimationStyle = `
     scrollbar-width: none;
   }
 `;
-
-// Loader Component
-const Loader = () => {
-  return (
-    <div className="flex flex-col items-center justify-center py-20">
-      <div className="relative w-16 h-16 mb-4">
-        <div className="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-        <div className="absolute inset-2 border-4 border-cyan-300 border-b-transparent rounded-full animate-spin-reverse"></div>
-      </div>
-      <p className="text-cyan-700 dark:text-cyan-200 text-lg font-medium">
-        Loading Products...
-      </p>
-      <p className="text-slate-500 dark:text-gray-400 text-sm mt-2">
-        Discovering amazing items for you
-      </p>
-    </div>
-  );
-};
-
-// Skeleton Loader for Cards
-const CardSkeleton = () => {
-  return (
-    <div className="bg-gradient-to-br from-slate-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-gray-700 animate-pulse">
-      <div className="w-full h-64 bg-slate-200 dark:bg-gray-700"></div>
-      <div className="p-5 space-y-3">
-        <div className="h-4 bg-slate-200 dark:bg-gray-700 rounded"></div>
-        <div className="h-4 bg-slate-200 dark:bg-gray-700 rounded w-3/4"></div>
-        <div className="flex justify-between items-center pt-2">
-          <div className="h-6 bg-slate-200 dark:bg-gray-700 rounded w-1/3"></div>
-          <div className="h-10 bg-slate-200 dark:bg-gray-700 rounded w-1/2"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Filter Content Component
 const FilterContent = ({
   activeFilters,
